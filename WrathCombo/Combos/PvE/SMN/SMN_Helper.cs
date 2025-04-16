@@ -6,6 +6,7 @@ using Dalamud.Game.ClientState.JobGauge.Enums;
 using WrathCombo.CustomComboNS;
 using WrathCombo.CustomComboNS.Functions;
 using static WrathCombo.CustomComboNS.Functions.CustomComboFunctions;
+using static WrathCombo.Combos.PvE.RoleActions;
 
 namespace WrathCombo.Combos.PvE;
 
@@ -150,6 +151,7 @@ internal partial class SMN
 
     #endregion
 
+    #region Variables
     internal static SMNGauge Gauge => GetJobGauge<SMNGauge>();
 
     internal static bool IsIfritAttuned => Gauge.AttunementType is SummonAttunement.Ifrit;
@@ -164,19 +166,10 @@ internal partial class SMN
     internal static bool IsBahamutReady => !IsPhoenixReady && !IsSolarBahamutReady;
     internal static bool IsPhoenixReady => Gauge.AetherFlags.HasFlag((AetherFlags)4) && !Gauge.AetherFlags.HasFlag((AetherFlags)8);
     internal static bool IsSolarBahamutReady => Gauge.AetherFlags.HasFlag((AetherFlags)8) || Gauge.AetherFlags.HasFlag((AetherFlags)12);
+    internal static bool NeedToSummon => ActionReady(SummonCarbuncle) && !HasPetPresent();
+    internal static bool SimpleMode => IsEnabled(CustomComboPreset.SMN_ST_Simple_Combo);
 
-    private static DateTime SummonTime
-    {
-        get
-        {
-            if (HasPetPresent())
-                return field = DateTime.Now.AddSeconds(1);
-
-            return field;
-        }
-    }
-
-    public static bool NeedToSummon => DateTime.Now > SummonTime && !HasPetPresent();
+    #region Demi Summon 
 
     internal static DemiSummon CurrentDemiSummon
     {
@@ -201,6 +194,34 @@ internal partial class SMN
         Phoenix,
         SolarBahamut
     }
+
+    #endregion
+
+    #endregion
+
+    #region Functions
+    internal static uint EmergencyDemi(uint actionId)
+    {
+        if (CurrentDemiSummon is not DemiSummon.None && Gauge.SummonTimerRemaining <= 2500 &&
+            (IsEnabled(CustomComboPreset.SMN_ST_Advanced_Combo_DemiSummons_Attacks) || SimpleMode))
+        {
+            if (ActionReady(OriginalHook(EnkindleBahamut)))
+                return OriginalHook(EnkindleBahamut);
+
+            if (ActionReady(AstralFlow) && 
+                ((IsEnabled(CustomComboPreset.SMN_ST_Advanced_Combo_DemiSummons_Rekindle) && CurrentDemiSummon is DemiSummon.Phoenix) || 
+                CurrentDemiSummon is not DemiSummon.Phoenix || 
+                SimpleMode))
+                return OriginalHook(AstralFlow);            
+        }
+        return actionId;
+
+    }
+
+
+    #endregion
+
+    #region Opener
 
     internal static SMNOpenerMaxLevel1 Opener1 = new();
     internal static WrathOpener Opener()
@@ -270,4 +291,5 @@ internal partial class SMN
             return true;
         }
     }
+    #endregion
 }

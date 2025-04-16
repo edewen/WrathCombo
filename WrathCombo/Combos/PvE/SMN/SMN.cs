@@ -117,7 +117,7 @@ internal partial class SMN : Caster
                  PreciousBrilliance or Gemshine))
                 return actionID;
 
-            if (NeedToSummon && ActionReady(SummonCarbuncle))
+            if (NeedToSummon)
                 return SummonCarbuncle;
 
             return actionID;
@@ -187,10 +187,10 @@ internal partial class SMN : Caster
             if (Variant.CanRampart(CustomComboPreset.SMN_Variant_Rampart, WeaveTypes.SpellWeave))
                 return Variant.Rampart;
 
-            if (NeedToSummon && ActionReady(SummonCarbuncle))
-                return SummonCarbuncle;
-
             #endregion
+
+            if (NeedToSummon)
+                return SummonCarbuncle;            
 
             #region OGCD
 
@@ -321,10 +321,10 @@ internal partial class SMN : Caster
             if (Variant.CanRampart(CustomComboPreset.SMN_Variant_Rampart, WeaveTypes.SpellWeave))
                 return Variant.Rampart;
 
-            if (NeedToSummon && ActionReady(SummonCarbuncle))
-                return SummonCarbuncle;
-
             #endregion
+
+            if (NeedToSummon)
+                return SummonCarbuncle;
 
             #region OGCD
 
@@ -476,9 +476,15 @@ internal partial class SMN : Caster
             DemiAttackCount = CurrentDemiSummon is not DemiSummon.None ? TimesUsedSinceOtherAction(OriginalHook(Aethercharge), [AstralImpulse, UmbralImpulse, FountainOfFire, AstralFlare, UmbralFlare, BrandOfPurgatory]) : 0;
             #endregion
 
-            //Opener
+            #region Opener
+
             if (IsEnabled(CustomComboPreset.SMN_ST_Advanced_Combo_Balance_Opener) && Opener().FullOpener(ref actionID))
                 return actionID;
+
+            if (NeedToSummon)
+                return SummonCarbuncle;
+
+            #endregion
 
             #region Variants
 
@@ -487,9 +493,6 @@ internal partial class SMN : Caster
 
             if (Variant.CanRampart(CustomComboPreset.SMN_Variant_Rampart, WeaveTypes.SpellWeave))
                 return Variant.Rampart;
-
-            if (NeedToSummon && ActionReady(SummonCarbuncle))
-                return SummonCarbuncle;
 
             #endregion
 
@@ -710,7 +713,7 @@ internal partial class SMN : Caster
             if (Variant.CanRampart(CustomComboPreset.SMN_Variant_Rampart, WeaveTypes.SpellWeave))
                 return Variant.Rampart;
 
-            if (NeedToSummon && ActionReady(SummonCarbuncle))
+            if (NeedToSummon)
                 return SummonCarbuncle;
 
             #endregion
