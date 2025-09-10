@@ -233,9 +233,6 @@ public static class ActionWatching
             }
         }
 
-        // Update Helpers
-        NIN.InMudra = NIN.MudraSigns.Contains(actionId);
-
         if (castTime == 0)
             WrathOpener.CurrentOpener?.ProgressOpener(actionId);
 
@@ -264,6 +261,8 @@ public static class ActionWatching
                 UpdateLastUsedAction(actionId, actionType, targetObjectId, castTime),
                 TimeSpan.FromMilliseconds(castTime), cancellationToken: token);
 
+                // Update Helpers
+                NIN.InMudra = NIN.MudraSigns.Contains(actionId);
                 if (castTime > 0)
                 {
                     TimeLastActionUsed = DateTime.Now;
