@@ -71,6 +71,10 @@ internal class AutoRotationTab : ConfigWindow
         changed |= ImGui.Checkbox("Enable Automatically in Instanced Content", ref cfg.EnableInInstance);
         changed |= ImGui.Checkbox("Disable After Leaving Instanced Content", ref cfg.DisableAfterInstance);
 
+        changed |= ImGui.Checkbox("Always Set Hard Target", ref cfg.DPSSettings.AlwaysSelectTarget);
+
+        ImGuiComponents.HelpMarker("Auto-rotation does not need to target enemies or allies to work, however with this setting enabled it will always set your hard target when it executes an action.");
+
         if (ImGui.CollapsingHeader("Damage Settings"))
         {
             ImGuiEx.TextUnderlined($"Targeting Mode");
@@ -133,10 +137,6 @@ internal class AutoRotationTab : ConfigWindow
 
             if (cfg.DPSSettings.OnlyAttackInCombat && changed)
                 cfg.DPSSettings.PreferNonCombat = false;
-
-            changed |= ImGui.Checkbox("Always Target Regardless of Action", ref cfg.DPSSettings.AlwaysSelectTarget);
-
-            ImGuiComponents.HelpMarker("Normally, Auto-rotation will only target an enemy if the next action it would fire needs a target. This will change the behaviour so it will always select the target regardless of what the action can target.");
 
             changed |= ImGui.Checkbox("Un-Target and Stop Actions for Pyretics", ref cfg.DPSSettings.UnTargetAndDisableForPenalty);
 

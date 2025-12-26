@@ -198,7 +198,7 @@ internal class Debug : ConfigWindow, IDisposable
 
         ImGuiEx.Spacing(new Vector2(0f, SpacingMedium));
 
-        var target = Svc.Targets.Target;
+        var target = CurrentTarget;
         var player = Player.Object;
 
         // Custom 2-Column Styling
