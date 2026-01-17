@@ -60,6 +60,12 @@ internal partial class SAM
                         "HP percent threshold to not save Kenki");
                     break;
 
+                case Preset.SAM_ST_CDs_MeikyoShisui:
+                    DrawSliderInt(0, 100, SAM_ST_MeikyoExecuteThreshold,
+                        "HP percent threshold to use Meikyo on cooldown.");
+                    break;
+
+
                 case Preset.SAM_ST_GekkoCombo:
                     DrawAdditionalBoolChoice(SAM_Gekko_KenkiOvercap,
                         "Kenki Overcap Protection", "Spends Kenki when at the set value or above.");
@@ -167,6 +173,7 @@ internal partial class SAM
             SAM_ST_KenkiOvercapAmount = new("SAM_ST_KenkiOvercapAmount", 65),
             SAM_ST_YukikazeCombo_Prio = new("SAM_ST_YukikazeCombo_Prio", 1),
             SAM_ST_ExecuteThreshold = new("SAM_ST_ExecuteThreshold", 1),
+            SAM_ST_MeikyoExecuteThreshold = new("SAM_ST_MeikyoExecuteThreshold", 5),
             SAM_ST_ManualTN = new("SAM_ST_ManualTN"),
             SAM_STSecondWindHPThreshold = new("SAM_STSecondWindThreshold", 40),
             SAM_STBloodbathHPThreshold = new("SAM_STBloodbathThreshold", 30),
