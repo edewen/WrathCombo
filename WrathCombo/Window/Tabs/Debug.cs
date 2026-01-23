@@ -437,142 +437,20 @@ internal class Debug : ConfigWindow, IDisposable
 
         if (ImGui.CollapsingHeader("Target Data"))
         {
-            if (target is not null)
+            DrawTargetInfo(target);
+        }
+
+        if (ImGui.CollapsingHeader("All Enemies"))
+        {
+            ImGui.Indent();
+            foreach (var e in Svc.Objects.Where(x => x.IsHostile()))
             {
-                bool? foundSheet = null;
-                BNpcBase? battleNPCRow = null;
-                if (ActionWatching.BNPCSheet.TryGetValue(target.BaseId,
-                        out var sheetRow))
+                if (ImGui.CollapsingHeader($"{e.Name} ({e.GameObjectId})"))
                 {
-                    battleNPCRow = sheetRow;
-                    foundSheet = true;
+                    DrawTargetInfo(e);
                 }
-                else
-                    foundSheet = false;
-
-                CustomStyleText("Name:", target?.Name);
-                CustomStyleText("Nameplate:", target?.GetNameplateKind().ToString());
-                CustomStyleText("Rank:", $"{battleNPCRow?.Rank.ToString() ?? "null"} (found sheet: {(foundSheet is true ? "yes" : "no")})");
-                CustomStyleText("Health:", $"{GetTargetCurrentHP():N0} / {GetTargetMaxHP():N0} ({MathF.Round(GetTargetHPPercent(), 2)}%)");
-                CustomStyleText("Distance:", $"{MathF.Round(GetTargetDistance(), 2)}y");
-                CustomStyleText("Hitbox Radius:", target?.HitboxRadius);
-                CustomStyleText("In Melee Range:", InMeleeRange());
-                CustomStyleText("Height Difference:", $"{MathF.Round(GetTargetHeightDifference(), 2)}y");
-                CustomStyleText("Relative Position:", AngleToTarget().ToString());
-                CustomStyleText("Requires Positionals:", TargetNeedsPositionals());
-                CustomStyleText("Is Invincible:", TargetIsInvincible(target!));
-                CustomStyleText("Is Hostile:", target?.IsHostile());
-                CustomStyleText("Is Friendly:", target?.IsFriendly());
-                CustomStyleText("Is Boss:", target?.IsBoss());
-                CustomStyleText("In Boss Encounter:", InBossEncounter());
-
-                ImGuiEx.Spacing(new Vector2(0f, SpacingSmall));
-
-                if (ImGui.TreeNode("Cast Data"))
-                {
-                    if (target is IBattleChara castChara)
-                    {
-                        CustomStyleText("Cast Action:", castChara.CastActionId == 0
-                            ? string.Empty
-                            : $"{(string.IsNullOrEmpty(GetActionName(castChara.CastActionId))
-                                ? "Unknown"
-                                : GetActionName(castChara.CastActionId))} (ID: {castChara.CastActionId})");
-                        CustomStyleText("Cast Time:", $"{castChara.CurrentCastTime:F2} / {castChara.TotalCastTime:F2}");
-
-                        // Extract Lumina Data
-                        var charaSpell = castChara.CastActionId > 0
-                            ? Svc.Data.GetExcelSheet<Action>()?.GetRowOrDefault(castChara.CastActionId)
-                            : null;
-
-                        CustomStyleText("Cast 100ms:", $"{charaSpell?.Cast100ms * 0.1f ?? 0f:F2} + {charaSpell?.ExtraCastTime100ms * 0.1f ?? 0f:F2}");
-                        CustomStyleText("Cast Type:", $"{charaSpell?.CastType ?? 0}");
-                        CustomStyleText("Action Type:", $"{castChara.CastActionType}");
-                        CustomStyleText("Action Range:", $"{GetActionRange(charaSpell?.RowId ?? 0)}y");
-                        CustomStyleText("Effect Range:", $"{charaSpell?.EffectRange ?? 0}y");
-                        CustomStyleText("Interruptible:", $"{castChara.IsCastInterruptible}");
-                    }
-                    else CustomStyleText("No valid target.", "");
-
-                    ImGuiEx.Spacing(new Vector2(0f, SpacingSmall));
-                    ImGui.TreePop();
-                }
-
-                if (ImGui.TreeNode("Object Data"))
-                {
-                    CustomStyleText("Data/BaseId:", target?.BaseId);
-
-                    // Display 'EntityId' only if it differs from 'GameObjectId'
-                    if (target is not null && target.EntityId != target.GameObjectId)
-                    {
-                        CustomStyleText("EntityId:", target.EntityId);
-                        ImGuiEx.InfoMarker("EntityId does not match ObjectId.\nThis object may have special interactivity rules.");
-                    }
-
-                    CustomStyleText("ObjectId:", target?.GameObjectId);
-                    CustomStyleText("NameId:", target?.GetNameId());
-                    CustomStyleText("ObjectKind:", target?.ObjectKind);
-                    CustomStyleText("ObjectSubKind:", target?.SubKind);
-                    CustomStyleText("ObjectType:", target?.GetType()?.Name);
-
-                    ImGuiEx.Spacing(new Vector2(0f, SpacingSmall));
-                    ImGui.TreePop();
-                }
-
-                if (ImGui.TreeNode("Enmity Data"))
-                {
-                    CustomStyleText($"Highest Enmity DPS:", $"{StrongestDPS()?.Name}");
-
-                    if (ImGui.TreeNode("Enmity Table"))
-                    {
-                        foreach (var h in EnmityDictParty)
-                        {
-                            CustomStyleText($"{Svc.Objects.SearchById(h.Key).Name}:", $"{h.Value}%");
-                        }
-
-                        ImGui.TreePop();
-                    }
-
-                    ImGuiEx.Spacing(new Vector2(0f, SpacingSmall));
-                    ImGui.TreePop();
-                }
-
-                if (ImGui.TreeNode("Heal Target Data"))
-                {
-                    CustomStyleText("Current:", SimpleTarget.Stack.AllyToHeal.Name);
-                    ImGuiEx.InfoMarker("Cycles from Party UI Mouseover → Soft Target → Hard Target → Player.");
-
-                    CustomStyleText("Shield:", $"{(SimpleTarget.Stack.AllyToHeal as ICharacter).ShieldPercentage}%");
-                    CustomStyleText("Health:", $"{MathF.Round(GetTargetHPPercent(SimpleTarget.Stack.AllyToHeal), 2)}% / {MathF.Round(GetTargetHPPercent(SimpleTarget.Stack.AllyToHeal, true), 2)}% (+Shield)");
-
-                    ImGuiEx.Spacing(new Vector2(0f, SpacingSmall));
-                    ImGui.TreePop();
-                }
-
-                if (ImGui.TreeNode("Enemies Near Target"))
-                {
-                    var enemies = Svc.Objects
-                    .OfType<IBattleNpc>()
-                    .Where(x => x.ObjectKind == ObjectKind.BattleNpc &&
-                                x.IsTargetable &&
-                                !x.IsDead &&
-                                x.BattleNpcKind is BattleNPCSubKind.Enemy or BattleNPCSubKind.BattleNpcPart);
-
-                    foreach (var enemy in enemies)
-                    {
-                        if (!enemy.Character()->InCombat) continue;
-                        if (enemy.GameObjectId == target?.GameObjectId) continue;
-
-                        var dist = MathF.Round(GetTargetDistance(enemy, target), 2);
-                        CustomStyleText($"{enemy.Name} ({enemy.GameObjectId}):", $"{dist}y");
-                    }
-
-                    ImGui.TreePop();
-                }
-
-                ImGuiEx.Spacing(new Vector2(0f, SpacingSmall));
-
-                DrawVFXTree(target);
             }
+            ImGui.Unindent();
         }
 
         #endregion
@@ -973,18 +851,18 @@ internal class Debug : ConfigWindow, IDisposable
                 ImGuiEx.TextUnderlined("Retargets:");
                 var first = true;
                 var distinctRetargets = retargets
-                    .DistinctBy(x => x.Value.ID)
-                    .Select(x => x.Value)
-                    .OrderBy(x => x.Action);
+                    .OrderBy(x => x.Key);
+
                 foreach (var retarget in distinctRetargets)
                 {
+                    var val = retarget.Value;
                     if (!first) ImGuiEx.Spacing(new Vector2(0f, SpacingSmall/2));
 
-                    CustomStyleText($"Action: {retarget.Action.ActionName()}",
-                        $"ID: {retarget.ID,20}");
+                    CustomStyleText($"Action: {val.Action.ActionName()} (Key: {retarget.Key.ActionName()})",
+                        $"ID: {val.ID,20}");
                     // Set a set amount of distance to the right of the ID,
                     // so the help mark doesn't move
-                    var width = ImGui.CalcTextSize($"ID: {retarget.ID,20}").X;
+                    var width = ImGui.CalcTextSize($"ID: {val.ID,20}").X;
                     ImGui.SameLine();
                     ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 110f.Scale() - width);
                     ImGui.Text("");
@@ -994,17 +872,17 @@ internal class Debug : ConfigWindow, IDisposable
 
                     ImGui.Indent(10f.Scale());
                     var replacedActionsString = string.Join(", ",
-                        retarget.ReplacedActions.Select(x => x.ActionName()));
+                        val.ReplacedActions.Select(x => x.ActionName()));
                     ImGuiEx.Text("Replaced Actions:");
                     ImGui.SameLine();
                     ImGuiEx.TextWrapped(ImGuiColors.DalamudGrey, replacedActionsString);
                     ImGui.Unindent(10f.Scale());
 
-                    CustomStyleText($"Resolver: {retarget.ResolverName}",
-                        $"Resolved Target: '{retarget.Resolver()?.Name ?? "Null"}'");
+                    CustomStyleText($"Resolver: {val.ResolverName}",
+                        $"Resolved Target: '{val.Resolver()?.Name ?? "Null"}'");
                     ImGuiComponents.HelpMarker("Resolvers may only resolve to a fallback target,\nexcept under conditions where the Retargeting would actually be applied.");
 
-                    var createdTimeString = retarget.Created.ToString(@"HH\:mm\:ss");
+                    var createdTimeString = val.Created.ToString(@"HH\:mm\:ss");
                     CustomStyleText($"Created: {createdTimeString}",
                         $"");
 
@@ -1292,6 +1170,146 @@ internal class Debug : ConfigWindow, IDisposable
         #endregion
     }
 
+    private static unsafe void DrawTargetInfo(IGameObject? target)
+    {
+        if (target is not null)
+        {
+            bool? foundSheet = null;
+            BNpcBase? battleNPCRow = null;
+            if (ActionWatching.BNPCSheet.TryGetValue(target.BaseId,
+                    out var sheetRow))
+            {
+                battleNPCRow = sheetRow;
+                foundSheet = true;
+            }
+            else
+                foundSheet = false;
+
+            CustomStyleText("Name:", target?.Name);
+            CustomStyleText("Nameplate:", target?.GetNameplateKind().ToString());
+            CustomStyleText("Rank:", $"{battleNPCRow?.Rank.ToString() ?? "null"} (found sheet: {(foundSheet is true ? "yes" : "no")})");
+            CustomStyleText("Health:", $"{GetTargetCurrentHP():N0} / {GetTargetMaxHP():N0} ({MathF.Round(GetTargetHPPercent(), 2)}%)");
+            CustomStyleText("Distance:", $"{MathF.Round(GetTargetDistance(), 2)}y");
+            CustomStyleText("Hitbox Radius:", target?.HitboxRadius);
+            CustomStyleText("In Melee Range:", InMeleeRange());
+            CustomStyleText("Height Difference:", $"{MathF.Round(GetTargetHeightDifference(), 2)}y");
+            CustomStyleText("Relative Position:", AngleToTarget().ToString());
+            CustomStyleText("Requires Positionals:", TargetNeedsPositionals());
+            CustomStyleText("Is Invincible:", TargetIsInvincible(target!));
+            CustomStyleText("Is Hostile:", target?.IsHostile());
+            CustomStyleText("Is Friendly:", target?.IsFriendly());
+            CustomStyleText("Is Boss:", target?.IsBoss());
+            CustomStyleText("In Boss Encounter:", InBossEncounter());
+
+            ImGuiEx.Spacing(new Vector2(0f, SpacingSmall));
+
+            if (ImGui.TreeNode("Cast Data"))
+            {
+                if (target is IBattleChara castChara)
+                {
+                    CustomStyleText("Cast Action:", castChara.CastActionId == 0
+                        ? string.Empty
+                        : $"{(string.IsNullOrEmpty(GetActionName(castChara.CastActionId))
+                            ? "Unknown"
+                            : GetActionName(castChara.CastActionId))} (ID: {castChara.CastActionId})");
+                    CustomStyleText("Cast Time:", $"{castChara.CurrentCastTime:F2} / {castChara.TotalCastTime:F2}");
+
+                    // Extract Lumina Data
+                    var charaSpell = castChara.CastActionId > 0
+                        ? Svc.Data.GetExcelSheet<Action>()?.GetRowOrDefault(castChara.CastActionId)
+                        : null;
+
+                    CustomStyleText("Cast 100ms:", $"{charaSpell?.Cast100ms * 0.1f ?? 0f:F2} + {charaSpell?.ExtraCastTime100ms * 0.1f ?? 0f:F2}");
+                    CustomStyleText("Cast Type:", $"{charaSpell?.CastType ?? 0}");
+                    CustomStyleText("Action Type:", $"{castChara.CastActionType}");
+                    CustomStyleText("Action Range:", $"{GetActionRange(charaSpell?.RowId ?? 0)}y");
+                    CustomStyleText("Effect Range:", $"{charaSpell?.EffectRange ?? 0}y");
+                    CustomStyleText("Interruptible:", $"{castChara.IsCastInterruptible}");
+                }
+                else CustomStyleText("No valid target.", "");
+
+                ImGuiEx.Spacing(new Vector2(0f, SpacingSmall));
+                ImGui.TreePop();
+            }
+
+            if (ImGui.TreeNode("Object Data"))
+            {
+                CustomStyleText("Data/BaseId:", target?.BaseId);
+
+                // Display 'EntityId' only if it differs from 'GameObjectId'
+                if (target is not null && target.EntityId != target.GameObjectId)
+                {
+                    CustomStyleText("EntityId:", target.EntityId);
+                    ImGuiEx.InfoMarker("EntityId does not match ObjectId.\nThis object may have special interactivity rules.");
+                }
+
+                CustomStyleText("ObjectId:", target?.GameObjectId);
+                CustomStyleText("NameId:", target?.GetNameId());
+                CustomStyleText("ObjectKind:", target?.ObjectKind);
+                CustomStyleText("ObjectSubKind:", target?.SubKind);
+                CustomStyleText("ObjectType:", target?.GetType()?.Name);
+
+                ImGuiEx.Spacing(new Vector2(0f, SpacingSmall));
+                ImGui.TreePop();
+            }
+
+            if (ImGui.TreeNode("Enmity Data"))
+            {
+                CustomStyleText($"Highest Enmity DPS:", $"{StrongestDPS()?.Name}");
+
+                if (ImGui.TreeNode("Enmity Table"))
+                {
+                    foreach (var h in EnmityDictParty)
+                    {
+                        CustomStyleText($"{Svc.Objects.SearchById(h.Key).Name}:", $"{h.Value}%");
+                    }
+
+                    ImGui.TreePop();
+                }
+
+                ImGuiEx.Spacing(new Vector2(0f, SpacingSmall));
+                ImGui.TreePop();
+            }
+
+            if (ImGui.TreeNode("Heal Target Data"))
+            {
+                CustomStyleText("Current:", SimpleTarget.Stack.AllyToHeal.Name);
+                ImGuiEx.InfoMarker("Cycles from Party UI Mouseover → Soft Target → Hard Target → Player.");
+
+                CustomStyleText("Shield:", $"{(SimpleTarget.Stack.AllyToHeal as ICharacter).ShieldPercentage}%");
+                CustomStyleText("Health:", $"{MathF.Round(GetTargetHPPercent(SimpleTarget.Stack.AllyToHeal), 2)}% / {MathF.Round(GetTargetHPPercent(SimpleTarget.Stack.AllyToHeal, true), 2)}% (+Shield)");
+
+                ImGuiEx.Spacing(new Vector2(0f, SpacingSmall));
+                ImGui.TreePop();
+            }
+
+            if (ImGui.TreeNode("Enemies Near Target"))
+            {
+                var enemies = Svc.Objects
+                .OfType<IBattleNpc>()
+                .Where(x => x.ObjectKind == ObjectKind.BattleNpc &&
+                            x.IsTargetable &&
+                            !x.IsDead &&
+                            x.BattleNpcKind is BattleNPCSubKind.Enemy or BattleNPCSubKind.BattleNpcPart);
+
+                foreach (var enemy in enemies)
+                {
+                    if (!enemy.Character()->InCombat) continue;
+                    if (enemy.GameObjectId == target?.GameObjectId) continue;
+
+                    var dist = MathF.Round(GetTargetDistance(enemy, target), 2);
+                    CustomStyleText($"{enemy.Name} ({enemy.GameObjectId}):", $"{dist}y");
+                }
+
+                ImGui.TreePop();
+            }
+
+            ImGuiEx.Spacing(new Vector2(0f, SpacingSmall));
+
+            DrawVFXTree(target);
+        }
+    }
+
     private static void DrawVFXTree(IGameObject? obj)
     {
         if (ImGui.TreeNode($"VFX Data###{obj.GameObjectId}"))
@@ -1346,6 +1364,7 @@ internal class Debug : ConfigWindow, IDisposable
 
     private static void DisableDebugConfig()
     {
+        _debugConfig = string.Empty;
         DebugConfig = false;
         Service.Configuration =
             _previousConfig ??

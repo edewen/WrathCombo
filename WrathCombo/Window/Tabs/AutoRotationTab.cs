@@ -52,11 +52,11 @@ internal class AutoRotationTab : ConfigWindow
                 ImGuiComponents.HelpMarker($"Many jobs have an out of combat action that can be used, for example, {RPR.Soulsow.ActionName()} or {MNK.ForbiddenMeditation.ActionName()}. This will allow these to be used without being in combat.");
 
                 ImGuiExtensions.Prefix(false);
-                changed |= ImGui.Checkbox($"Bypass Only in Combat for Quest Targets", ref cfg.BypassQuest);
+                changed |= P.UIHelper.ShowIPCControlledCheckboxIfNeeded($"Bypass Only in Combat for Quest Targets", ref cfg.BypassQuest, "BypassQuest");
                 ImGuiComponents.HelpMarker("Disables Auto-Mode outside of combat unless you're within range of a quest target.");
 
                 ImGuiExtensions.Prefix(false);
-                changed |= ImGui.Checkbox($"Bypass Only in Combat for FATE Targets", ref cfg.BypassFATE);
+                changed |= P.UIHelper.ShowIPCControlledCheckboxIfNeeded($"Bypass Only in Combat for FATE Targets", ref cfg.BypassFATE, "BypassFATE");
                 ImGuiComponents.HelpMarker("Disables Auto-Mode outside of combat unless you're synced to a FATE.");
 
                 ImGuiExtensions.Prefix(true);
@@ -147,7 +147,7 @@ internal class AutoRotationTab : ConfigWindow
 
             ImGuiComponents.HelpMarker("This will un-set any current target and disable Auto-Rotation actions if there is a current detected Pyretic (or similar, like Acceleration Bomb) mechanic affecting the player, that would harm them if they took any action.");
 
-            changed |= ImGui.Checkbox("Always Set Hard Target", ref cfg.DPSSettings.DPSAlwaysHardTarget);
+            changed |= P.UIHelper.ShowIPCControlledCheckboxIfNeeded("Always Set Hard Target", ref cfg.DPSSettings.DPSAlwaysHardTarget, "DPSAlwaysHardTarget");
 
             ImGuiComponents.HelpMarker("Auto-rotation does not need to target enemies to work, however with this setting enabled it will always set your hard target when it executes an attack.");
 
@@ -297,7 +297,7 @@ internal class AutoRotationTab : ConfigWindow
             changed |= P.UIHelper.ShowIPCControlledCheckboxIfNeeded("Heal Friendly NPCs", ref cfg.HealerSettings.IncludeNPCs);
             ImGuiComponents.HelpMarker("Useful for healer quests where NPCs are expected to be healed but aren't added directly to your party.");
 
-            changed |= ImGui.Checkbox("Always Set Hard Target###HealerHardTarget", ref cfg.HealerSettings.HealerAlwaysHardTarget);
+            changed |= P.UIHelper.ShowIPCControlledCheckboxIfNeeded("Always Set Hard Target###HealerHardTarget", ref cfg.HealerSettings.HealerAlwaysHardTarget, "HealerAlwaysHardTarget");
 
             ImGuiComponents.HelpMarker("Auto-rotation does not need to target allies to work, however with this setting enabled it will always set your hard target when it executes a heal.");
 

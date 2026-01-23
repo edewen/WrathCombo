@@ -226,7 +226,7 @@ internal partial class WHM : Healer
             {
                 var dotAction = OriginalHook(Aero);
                 AeroList.TryGetValue(dotAction, out var dotDebuffID);
-                var target = SimpleTarget.DottableEnemy(dotAction, dotDebuffID, computeHpThreshold(), WHM_ST_DPS_AeroUptime_Threshold, 2);
+                var target = SimpleTarget.DottableEnemy(dotAction, dotDebuffID, ComputeHpThreshold, WHM_ST_DPS_AeroUptime_Threshold, 2);
                 
                 //Single Target Dotting, needed because dottableenemy will not maintain single dot on main target of more than one target exists. 
                 if (NeedsDoT()) 
@@ -698,7 +698,7 @@ internal partial class WHM : Healer
                     ? Cure.Retarget(Cure2, SimpleTarget.Stack.AllyToHeal)
                     : Cure;
 
-            return IsEnabled(Preset.WHM_Re_Cure)
+            return IsEnabled(Preset.WHM_Re_Cure2)
                 ? Cure2.Retarget(Cure2, SimpleTarget.Stack.AllyToHeal)
                 : Cure2;
         }
@@ -802,10 +802,10 @@ internal partial class WHM : Healer
                 return actionID;
 
             if (IsEnabled(Preset.WHM_Re_Cure))
-            {
                 Cure.Retarget(healStack);
+
+            if (IsEnabled(Preset.WHM_Re_Cure2))
                 Cure2.Retarget(healStack);
-            }
 
             if (IsEnabled(Preset.WHM_Re_Solace))
                 AfflatusSolace.Retarget(healStack);
