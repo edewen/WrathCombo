@@ -246,45 +246,6 @@ public partial class Configuration : IPluginConfiguration
                      "regarding Retargeting.")]
     public bool ActionChanging = true;
 
-    /// Whether to suppress other combos when an action is queued. Default: true.
-    /// <seealso cref="CustomComboNS.CustomCombo.TryInvoke"/>
-    [SettingCategory(Rotation_Behavior_Options)]
-    [Setting("Queued Action Suppression",
-        "While Enabled:\n" +
-        "When an action is Queued that is not the same as the button on the Hotbar, Wrath will disable every other Combo, preventing them from thinking the Queued action should trigger them.\n" +
-        "- This prevents combos from conflicting with each other, with overlap in actions that combos return and actions that combos replace.\n" +
-        "- This does however cause the Replaced Action for each combo to 'flash' through during Suppression.\n" +
-        "That 'flashed' hotbar action won't go through, it is only visual.\n\n" +
-        "While Disabled:\n" +
-        "Combos will not be disabled when actions are queued from a combo.\n" +
-        "- This prevents your hotbars 'flashing', that is the only real benefit.\n" +
-        "- This does however allow Combos to conflict with each other, if one combo returns an action that another combo has as its Replaced Action.\n" +
-        "We do NOT mark these types of conflicts, and we do NOT try to avoid them as we add new features",
-        recommendedValue: "On (NO SUPPORT if off)",
-        defaultValue: "On",
-        extraHelpMark: "With this enabled, whenever you queue an action that is not the same as the button you are pressing, it will disable every other button's feature from running. " +
-                       "This resolves a number of issues where incorrect actions are performed due to how the game processes queued actions, however the visual experience on your hotbars is degraded. " +
-                       "This is not recommended to be disabled, however if you feel uncomfortable with hotbar icons changing quickly this is one way to resolve it but be aware that this may introduce unintended side effects to combos if you have a lot enabled for a job.\n\n" +
-                       "For a more complicated explanation, whenever an action is used, the following happens:\n" +
-                       "1. If the action invokes the GCD (Weaponskills & Spells), if the GCD currently isn't active it will use it right away.\n" +
-                       "2. Otherwise, if you're within the \"Queue Window\" (normally the last 0.5s of the GCD), it gets added to the queue before it is used.\n" +
-                       "3. If the action is an Ability, as long as there's no animation lock currently happening it will execute right away.\n" +
-                       "4. Otherwise, it is added to the queue immediately and then used when the animation lock is finished.\n\n" +
-                       "For step 1, the action being passed to the game is the original, unmodified action, which is then converted at use time. " +
-                       "At step 2, things get messy as the queued action still remains the unmodified action, but when the queue is executed it treats it as if the modified action *is* the unmodified action.\n\n" +
-                       "E.g. Original action Cure, modified action Cure II. At step 1, the game is okay to convert Cure to Cure II because that is what we're telling it to do. However, when Cure is passed to the queue, it treats it as if the unmodified action is Cure II.\n\n" +
-                       "This is similar for steps 3 & 4, except it can just happen earlier.\n\n" +
-                       "How this impacts us is if using the example before, we have a feature replacing Cure with Cure II, " +
-                       "and another replacing Cure II with Regen and you enable both, the following happens:\n\n" +
-                       "Step 1, Cure is passed to the game, is converted to Cure II.\n" +
-                       "You press Cure again at the Queue Window, Cure is passed to the queue, however the queue when it goes to execute will treat it as Cure II.\n" +
-                       "Result is instead of Cure II being executed, it's Regen, because we've told it to modify Cure II to Regen.\n" +
-                       "This was not part of the first Feature, but rather the result of a Feature replacing an action you did not even press, therefore an incorrect action.\n\n" +
-                       "Our workaround for this is to disable all other actions being replaced if they don't match the queued action, which this setting controls.",
-        warningMark: "Wrath is entirely designed with Queued Action Suppression in mind.\n" +
-                     "Disabling it WILL lead to unexpected behavior, which we DO NOT support.")]
-    public bool SuppressQueuedActions = true;
-
     [SettingCategory(Rotation_Behavior_Options)]
     [Setting("Custom Manual Queue Window",
     "Allows you to adjust your queue window to any time during the GCD rather than just within the last 0.3-0.5s. Useful if you're not mashing " +
