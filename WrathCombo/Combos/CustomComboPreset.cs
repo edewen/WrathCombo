@@ -2122,8 +2122,13 @@ public enum Preset
     BRD_OneButtonDots_SavageBlade = 3073,
 
     #endregion
+    #region Hidden
+    [CustomComboInfo("Hidden Extended Army's Paeon", "Will extend your Army's Paeon to 3 seconds left on it's timer. For longer burst holds without dropping songs.", Job.BRD)]
+    [Hidden]
+    BRD_Hidden_Song_Extension = 3074,
+    #endregion
 
-    // Last value = 3073
+    // Last value = 3074
 
     #endregion
 
@@ -2850,7 +2855,8 @@ public enum Preset
     DRK_Mitigation = 5300,
     
     [ParentCombo(DRK_Mitigation)]
-    [CustomComboInfo("Non Boss Encounter Mitigation", "Adds Mitigation to the combos when not in a boss encounter. Will not overlap separate options unless stated.", Job.DRK)]
+    [CustomComboInfo("Non Boss Encounter Mitigation", "Adds Mitigation to the combos when not in a boss encounter. Will not overlap separate options unless stated. " +
+                                                      "\nWill not use mitigation in the first 15 seconds of a pull unless you are not moving.", Job.DRK)]
     DRK_Mitigation_NonBoss = 5301,
     
     [ParentCombo(DRK_Mitigation_NonBoss)]
@@ -3061,12 +3067,17 @@ public enum Preset
     [ParentCombo(DRK_Retarget_Oblation)]
     [CustomComboInfo("Prevent Double Oblations", "Will change Oblation to Savage Blade when your target already has Oblation on them.", Job.DRK)]
     DRK_Retarget_Oblation_DoubleProtection = 5134,
+    
+    [ReplaceSkill(DRK.Shadowstride)]
+    [CustomComboInfo("Mouseover Shadowstride Option", "Will retarget Shadowstride to your field or UI mouseover target (If Hostile) or the nearest hostile target to your mouseover target (If friendly).", Job.DRK)]
+    [Retargeted(DRK.Shadowstride)]
+    DRK_RetargetShadowstride = 5135,
 
     #endregion
-    // Last value = 5134
+    // Last value = 5135
 
     #endregion
-    // Last value = 5134
+    // Last value = 5135
 
     #region Hidden Features
 
@@ -3461,7 +3472,8 @@ public enum Preset
     GNB_Mitigation = 7700,
     
     [ParentCombo(GNB_Mitigation)]
-    [CustomComboInfo("Non Boss Encounter Mitigation", "Adds Mitigation to the combos when not in a boss encounter. Will not overlap separate options unless stated.", Job.GNB)]
+    [CustomComboInfo("Non Boss Encounter Mitigation", "Adds Mitigation to the combos when not in a boss encounter. Will not overlap separate options unless stated." +
+                                                      "\nWill not use mitigation in the first 15 seconds of a pull unless you are not moving.", Job.GNB)]
     GNB_Mitigation_NonBoss = 7701,
     
     [ParentCombo(GNB_Mitigation_NonBoss)]
@@ -3766,10 +3778,15 @@ public enum Preset
     [Retargeted(GNB.HeartOfCorundum, GNB.HeartOfStone)]
     GNB_RetargetHeartofStone_TT = 7090,
     #endregion
+    
+    [ReplaceSkill(GNB.Trajectory)]
+    [CustomComboInfo("Mouseover Trajectory Option", "Will retarget Trajectory to your field or UI mouseover target (If Hostile) or the nearest hostile target to your mouseover target (If friendly).", Job.GNB)]
+    [Retargeted(GNB.Trajectory)]
+    GNB_RetargetTrajectory = 7091,
 
     #endregion
 
-    // Last Value = 7090
+    // Last Value = 7091
     #endregion
 
     #region MACHINIST
@@ -5018,7 +5035,8 @@ public enum Preset
     PLD_Mitigation = 11086,
     
     [ParentCombo(PLD_Mitigation)]
-    [CustomComboInfo("Non Boss Encounter Mitigation", "Adds Mitigation to the combos when not in a boss encounter. Will not overlap separate options unless stated.", Job.PLD)]
+    [CustomComboInfo("Non Boss Encounter Mitigation", "Adds Mitigation to the combos when not in a boss encounter. Will not overlap separate options unless stated." +
+                                                      "\nWill not use mitigation in the first 15 seconds of a pull unless you are not moving.", Job.PLD)]
     PLD_Mitigation_NonBoss = 11087,
     
     [ParentCombo(PLD_Mitigation_NonBoss)]
@@ -5233,10 +5251,15 @@ public enum Preset
     [CustomComboInfo("Low HP% Cover Option", "Will Cover the Lowest Health (by percentage) Party member when they fall below set threshold", Job.PLD)]
     [Retargeted(PLD.Cover)]
     PLD_RetargetCover_LowHP = 11077,
+    
+    [ReplaceSkill(PLD.Intervene)]
+    [CustomComboInfo("Mouseover Intervene Option", "Will retarget intervene to your field or UI mouseover target (If Hostile) or the nearest hostile target to your mouseover target (If friendly).", Job.PLD)]
+    [Retargeted(PLD.Intervene)]
+    PLD_RetargetIntervene = 11105,
 
     #endregion
 
-    //// Last value = 11099
+    //// Last value = 11105
 
     #endregion
 
@@ -7775,7 +7798,8 @@ public enum Preset
     WAR_Mitigation = 18131,
     
     [ParentCombo(WAR_Mitigation)]
-    [CustomComboInfo("Non Boss Encounter Mitigation", "Adds Mitigation to the combos when not in a boss encounter. Will not overlap separate options unless stated.", Job.WAR)]
+    [CustomComboInfo("Non Boss Encounter Mitigation", "Adds Mitigation to the combos when not in a boss encounter. Will not overlap separate options unless stated." +
+                                                      "\nWill not use mitigation in the first 15 seconds of a pull unless you are not moving.", Job.WAR)]
     WAR_Mitigation_NonBoss = 18132,
     
     [ParentCombo(WAR_Mitigation_NonBoss)]
@@ -7990,6 +8014,15 @@ public enum Preset
     [CustomComboInfo("Include Target's Target", "If your target's target is not you, will Retarget Nascent Flash onto them.\n(if you're not top aggro, and not mousing over or hard targeting an ally)", Job.WAR)]
     [Retargeted]
     WAR_RawIntuition_Targeting_TT = 18121,
+    
+    [ReplaceSkill(WAR.Onslaught)]
+    [CustomComboInfo("Mouseover Onslaught Option", "Will retarget Onslaught to your field or UI mouseover target (If Hostile) or the nearest hostile target to your mouseover target (If friendly).", Job.WAR)]
+    [Retargeted(WAR.Onslaught)]
+    WAR_RetargetOnslaught = 18152,
+    
+    [ReplaceSkill(RoleActions.Physical.ArmsLength)]
+    [CustomComboInfo("Double Anti-Knockback Protection", "Will lock out Arm's Length in boss encounters when you already have knockback immunity from Inner Release.", Job.WAR)]
+    WAR_ArmsLengthLockout = 18153,
 
     [ReplaceSkill(WAR.Holmgang)]
     [CustomComboInfo("Retarget Holmgang Feature", "Will Retarget Holmgang to yourself, instead of letting it go on enemies.", Job.WAR)]
@@ -8025,7 +8058,7 @@ public enum Preset
     #endregion
 
     #endregion
-    // Last value = 18145
+    // Last value = 18153
     #endregion
 
     #region WHITE MAGE
