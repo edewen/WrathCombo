@@ -344,4 +344,37 @@ internal abstract partial class CustomComboFunctions
             .FilterToTarget(targetId)
             .Any(IsTankBusterEffectPath);
     }
+
+    /// <summary>
+    /// Checks if the specified character has an active tank buster marker on them.
+    /// </summary>
+    /// <param name="ageSeconds">The number of seconds the oldest tank buster marker has been present.</param>
+    /// <param name="targetObject">The character to check. Defaults to the local player.</param>
+    /// <seealso cref="HasIncomingTankBusterEffect(IGameObject?)"/>
+    /// <returns>true if the target has an active tank buster effect, false otherwise.</returns>
+    public static bool HasIncomingTankBusterEffect(
+        out float ageSeconds, IGameObject? targetObject = null)
+    {
+        // Default age to NaN
+        ageSeconds = float.NaN;
+        // Default to local player if none provided
+        targetObject ??= Player.Object;
+
+        if (targetObject == null)
+            return false;
+
+        ulong targetId = targetObject.GameObjectId;
+
+        var targetEffects = VfxManager.TrackedEffects
+            .FilterToTarget(targetId)
+            .Where(IsTankBusterEffectPath)
+            .ToArray();
+
+        if (targetEffects.Length == 0)
+            return false;
+        
+        ageSeconds = targetEffects.Max(e => e.AgeSeconds);
+
+        return true;
+    }
 }
